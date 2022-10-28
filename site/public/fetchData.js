@@ -1,13 +1,13 @@
+// Pull data from the API and return as data object
 async function getData(fetchString) {
-  // console.log(fetchString)
   let serverAddr = "https://flask-demo-e3oz5uoi7a-uw.a.run.app/";
   let apiEndpoint = "data";
   let response = await fetch(serverAddr + apiEndpoint + "?" + fetchString);
   let data = await response.json();
-  // console.log(data)
   return data;
 }
 
+// Updates daysChart with data from the API
 function updateDays(data) {
   // First create a list of the days
   var days = [
@@ -19,9 +19,11 @@ function updateDays(data) {
     { x: "Saturday", y: 0 },
     { x: "Sunday", y: 0 },
   ];
-  // console.log(days[0]['y'])
+
   max = 0;
-  maxDay = "";
+  maxDay = ""; // Keep track of the best day to post
+
+  // Loop through the days, and add the number of posts for that day
   for (let i = 0; i < 7; i++) {
     let day = [days[i]["x"]];
 
@@ -33,22 +35,20 @@ function updateDays(data) {
       maxDay = day;
     }
   }
-  // To account for empty data set
+  // To account for empty data set, don't update
   if (max === "") {
     return;
   }
 
-  // for (let i = 0; i < 7; i++) {
-  //     console.log(days[i]['x'] + " " + days[i]['y'])
-  // }
   // Update myChart with top_days data
   daysChart.data.datasets[0].data = days;
-  // Set suggested max to the max of the data
+
   daysChart.options.scales.y.suggestedMax = max;
   daysChart.update();
   return maxDay;
 }
 
+// Updates hourlyChart with data from the API
 function updateHours(data) {
   var hours = [
     { x: "12AM", y: 0 },
@@ -78,7 +78,8 @@ function updateHours(data) {
   ];
 
   max = 0;
-  maxHour = "";
+  maxHour = ""; // Keep track of best hour to post
+
   for (let i = 0; i < 24; i++) {
     let hour = [hours[i]["x"]];
 
@@ -91,17 +92,23 @@ function updateHours(data) {
     }
   }
 
+  // To account for empty data set, don't update
   if (max === "") {
     return;
   }
+  
+  // Update dataset and y-axis range
   hourlyChart.data.datasets[0].data = hours;
   hourlyChart.options.scales.y.suggestedMax = max;
+
+  // Add hoverable tooltip
   hourlyChart.options.interaction.mode = "nearest";
   hourlyChart.options.interaction.intersect = false;
   hourlyChart.update();
   return maxHour;
 }
 
+// Updates the commonWordsChart with data from the API
 function updateWords(data) {
   // Add to chart
   for (const [key, value] of Object.entries(data["top_words"])) {
@@ -112,7 +119,7 @@ function updateWords(data) {
   commonWordsChart.update();
 }
 
-function addData(chart, label, data) {
+function addLenghtsData(chart, label, data) {
   chart.data.labels.push(label);
   chart.data.datasets.forEach((dataset) => {
     dataset.data.push(data);
@@ -122,20 +129,17 @@ function addData(chart, label, data) {
 
 function updateLengths(data) {
   for (const [key, value] of Object.entries(data["top_word_lengths"])) {
-    // lengthsChart.data.labels.push(key)
-    // lengthsChart.data.datasets[0].data.push(value)
-    addData(lengthsChart, key, value);
+    addLengthsData(lengthsChart, key, value);
   }
+  // Add hoverable tooltip
   lengthsChart.options.interaction.mode = "nearest";
   lengthsChart.options.interaction.intersect = false;
   lengthsChart.update();
-  // console.log('length' + lengthsChart.data.datasets[0].data.length)
 }
 
 async function submitForm() {
-  // Get the form data
+  // Hide submit text and reveal loading spinner
   document.getElementById("submit-spinner").style.display = "flex";
-  // Change text to say fetching
   document.getElementById("submit-text").style.display = "none";
   var form1 = document.getElementById("form1");
 
@@ -149,6 +153,13 @@ async function submitForm() {
     "startTime",
     "endTime",
   ];
+
+  // If subreddit is blank, use r/all
+  if (form1.elements["subreddit"].value === "") {
+    parameters[0] = "all";
+  }
+
+  // Loop through the form elements and add them to the fetch string
   for (let i = 0; i < parameters.length; i++) {
     let parameter = parameters[i];
     let value = form1.elements[i].value;
@@ -159,11 +170,11 @@ async function submitForm() {
 
   let data = await getData(fetchString);
 
+  // Hide loading spinner and reveal submit text
   document.getElementById("submit-spinner").style.display = "none";
-  // Change text to say fetching
   document.getElementById("submit-text").style.display = "flex";
 
-  // Remove old data from charts who's data isn't flushed
+  // Remove old data from charts who's data isn't flushed automatically
   commonWordsChart.datasets = commonWordsConfig.data.datasets[0].data = [];
   commonWordsChart.data.labels = [];
   commonWordsChart.update();
@@ -174,12 +185,10 @@ async function submitForm() {
 
   // Update the charts
   bestDay = updateDays(data);
-  document.getElementById("best-day").innerHTML = bestDay;
   bestHour = updateHours(data);
-  document.getElementById("best-time").innerHTML = bestHour;
   updateLengths(data);
   updateWords(data);
-
+  
   // Retrieve the most common element in dictionary data['top_word_lengths']
   var max = 0;
   var maxKey = "";
@@ -189,14 +198,17 @@ async function submitForm() {
       maxKey = key;
     }
   }
-  document.getElementById("best-length").innerHTML = maxKey;
-
+  
   // Find top 3 best words to use
   const topThreeWords = Object.entries(data["top_words"]) // create Array of Arrays with [key, value]
-    .sort(([, a], [, b]) => b - a) // sort by value, descending (b-a)
-    .slice(0, 3) // return only the first 3 elements of the intermediate result
-    .map(([n]) => n); // and map that to an array with only the name
-
+  .sort(([, a], [, b]) => b - a) // sort by value, descending (b-a)
+  .slice(0, 3) // return only the first 3 elements of the intermediate result
+  .map(([n]) => n); // and map that to an array with only the name
+  
+  // Update optimal post features in header
+  document.getElementById("best-day").innerHTML = bestDay;
+  document.getElementById("best-time").innerHTML = bestHour;
+  document.getElementById("best-length").innerHTML = maxKey;
   document.getElementById("keywords").innerHTML = topThreeWords.join(", ");
   document.getElementById("queried-posts").innerHTML = data["matching_posts"];
 }
