@@ -7,60 +7,141 @@
     <link href="output.css" rel="stylesheet">
     <!-- Import chart.js -->
     <script src="chart.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <h1 class="text-3xl font-bold underline">
-        Hello world!
-    </h1>
-    <div style="
-    height: 500px;
-    width: 500px;
-    ">
-        <canvas id="myChart" height="200" aria-label="example-chart" role="img"></canvas>
+<body class="antialiased max-w-6xl mx-auto my-3 bg-gray-100">
+    <div class="flex w-full px-8 py-5 my-3 mx-auto bg-white rounded-lg shadow-xl justify-between">
+        <div class="flex-col">
+            <div class="inline-flex">
+                <img src="reddit-logo.svg" class="max-h-8 max-w-8 pr-2"></svg>
+                <h1 class="text-2xl font-bold text-gray-800 pr-1">Reddit</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Analyzer</h1>
+            </div>
+            <p class="text-sm text-gray-700 pt-0.5">A tool to analyze the top posts on a subreddit and<br>reveal the
+                optimal <b>day, time, keywords, and title length</b><br> to optimize your <b>karmatic potential.</b></p>
+        </div>
+        <div class="flex-col text-right">
+            <p class="text-sm text-gray-600">Built by <a class="underline text-gray-700"
+                    href="https://aidansmith.me/">Aidan Smith</a></p>
+            <p class="text-sm text-gray-600">Source code on <a class="underline text-gray-700"
+                    href="https://github.com/aidansmth/reddit-analyzer">GitHub</a></p>
+            <br>
+            <p class="text-sm text-red-600">Note: Occasionally, requests for 500 posts will hit a rate limit imposed by
+                Reddit.</p>
+            <p class="text-sm text-red-600">For requests greater than 300 posts, you may have to wait +30s.</p>
+        </div>
+    </div>
+
+    <div id="header" class="flex w-full px-8 py-5 mx-auto bg-white rounded-lg shadow-xl">
+        <div class="flex flex-col grow">
+            <form class="flex flex-row grow justify-around" id="form1">
+                <div class="mb-5 m-1">
+                    <label for="form-subreddit" class="mb-2 block text-sm font-medium text-[#07074D]">
+                        Subreddit
+                    </label>
+                    <input type="text" name="form-subreddit" id="form-subreddit" placeholder="games"
+                        class="w-full rounded-md border border-[#e0e0e0] bg-white py-2 px-4 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md" />
+                </div>
+
+                <div class="mb-5 m-1">
+                    <label for="form-posts" class="mb-2 block text-sm font-medium text-[#07074D]">
+                        How many top posts to query?
+                    </label>
+                    <input type="number" name="form-posts" id="form-posts" placeholder="100" min="0" max="500"
+                        class="w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-2 px-4 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md" />
+                </div>
+
+                <div class="mb-5 m-1">
+                    <label for="form-start-date" class="mb-2 block text-sm font-medium text-[#07074D]">
+                        Start Date
+                    </label>
+                    <input type="date" name="form-start-date" id="start-date"
+                        class="w-full rounded-md border border-[#e0e0e0] bg-white py-2 px-4 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md" />
+                </div>
+
+                <div class="mb-5 m-1">
+                    <label for="form-end-date" class="mb-2 block text-sm font-medium text-[#07074D]">
+                        End Date
+                    </label>
+                    <input type="date" name="form-end-date" id="end-date"
+                        class="w-full rounded-md border border-[#e0e0e0] bg-white py-2 px-4 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md" />
+                </div>
+
+                <div class="mb-5 m-1">
+                    <label for="form-start-time" class="mb-2 block text-sm font-medium text-[#07074D]">
+                        Start Time
+                    </label>
+                    <input type="time" name="form-start-time" id="start-time"
+                        class="w-full rounded-md border border-[#e0e0e0] bg-white py-2 px-4 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md">
+                </div>
+
+                <div class="mb-5 m-1">
+                    <label for="form-end-time" class="mb-2 block text-sm font-medium text-[#07074D]">
+                        End Time
+                    </label>
+                    <input type="time" name="form-end-time" id="end-time"
+                        class="w-full rounded-md border border-[#e0e0e0] bg-white py-2 px-4 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md">
+                </div>
+
+            </form>
+            <div class="flex flex-row justify-between">
+                <button onclick="submitForm()" id="submit-button"
+                    class="shrink-0 rounded-md bg-[#6A64F1] py-2 px-8 m-1 text-center text-base font-semibold text-white outline-none hover:bg-[#4141A0]">
+                    <div class="flex-row">
+                        <div id="submit-spinner"
+                            class="hidden my-auto p-2 h-5 w-5 mx-3 border-t-transparent border-solid animate-spin rounded-full border-white border-4">
+                        </div>
+                        <div class="" id="submit-text"> Submit <div>
+                            </div>
+                </button>
+                <div flex-col>
+                    <h4 class="font-bold">Ideal Day</h4>
+                    <p id="best-day"></p>
+                </div>
+                <div flex-col>
+                    <h4 class="font-bold text-gray-800">Ideal Time</h4>
+                    <p id="best-time"></p>
+                </div>
+                <div flex-col>
+                    <h4 class="font-bold text-gray-800">Key Words</h4>
+                    <p id="keywords"></p>
+                </div>
+                <div flex-col>
+                    <h4 class="font-bold text-gray-800">Ideal Title Length</h4>
+                    <p id="best-length"></p>
+                </div>
+                <div flex-col>
+                    <h4 class="font-bold">Posts Matching Query</h4>
+                    <p id="best-day"></p>
+                </div>
+            </div>
+        </div>
     </div>
 
 
-    <script>
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-                datasets: [{
-                    label: 'Posts by day of the week',
-                    data: [1, 5, 3, 0, 0, 0, 0],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(255, 99, 132, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(255, 99, 132, 0.2)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        suggestedMax: 100
-                    }
-                }
-            }
-        });
-    </script>
+
+    <div id="content" class="grid grid-cols-2 grid-rows-2">
+        <div class="flex-1 w-full max-w-lg px-4 py-3 mx-auto bg-white rounded-lg shadow-xl">
+            <canvas class="m-1" id="daysChart" height="300" aria-label="example-chart" role="img"></canvas>
+        </div>
+        <div class="flex-1 w-full max-w-lg px-4 py-3 mx-auto bg-white rounded-lg shadow-xl">
+            <canvas class="m-1" id="hourlyChart" height="300" aria-label="example-chart" role="img"></canvas>
+        </div>
+        <div class="flex-1 w-full max-w-lg px-4 py-3 mx-auto bg-white rounded-lg shadow-xl">
+            <canvas class="m-1" id="commonWordChart" height="300" aria-label="example-chart" role="img"></canvas>
+        </div>
+        <div class="flex-1 w-full max-w-lg px-4 py-3 mx-auto bg-white rounded-lg shadow-xl">
+            <canvas class="m-1" id="lengthChart" height="300" aria-label="example-chart" role="img"></canvas>
+        </div>
+    </div>
+
+    <style>
+        #content>div {
+            margin: 1em;
+        }
+    </style>
+    <script src="initializeCharts.js"></script>
     <script src="fetchData.js"></script>
 
 </body>
