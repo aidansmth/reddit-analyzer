@@ -208,7 +208,7 @@ async function submitForm() {
   // Update optimal post features in header
   document.getElementById("best-day").innerHTML = bestDay;
   document.getElementById("best-time").innerHTML = bestHour;
-  document.getElementById("best-length").innerHTML = maxKey;
+  document.getElementById("best-length").innerHTML = maxKey + " words";
   document.getElementById("keywords").innerHTML = topThreeWords.join(", ");
-  document.getElementById("queried-posts").innerHTML = data["matching_posts"];
+  document.getElementById("queried-posts").innerHTML = data["matching_posts"] + " posts";
 }
