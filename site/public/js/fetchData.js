@@ -119,17 +119,17 @@ function updateWords(data) {
   commonWordsChart.update();
 }
 
-function addLenghtsData(chart, label, data) {
-  chart.data.labels.push(label);
-  chart.data.datasets.forEach((dataset) => {
-    dataset.data.push(data);
-  });
-  chart.update();
-}
 
 function updateLengths(data) {
   for (const [key, value] of Object.entries(data["top_word_lengths"])) {
     addLengthsData(lengthsChart, key, value);
+  }
+  function addLengthsData(chart, label, data) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+      dataset.data.push(data);
+    });
+    chart.update();
   }
   // Add hoverable tooltip
   lengthsChart.options.interaction.mode = "nearest";
