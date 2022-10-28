@@ -171,5 +171,5 @@ async function submitForm() {
         .map(([n]) => n); // and map that to an array with only the name
 
     document.getElementById('keywords').innerHTML = topThreeWords.join(', ')
-
+    document.getElementById('queried-posts').innerHTML = data['matching_posts']
 }
