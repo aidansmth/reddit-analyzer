@@ -154,9 +154,9 @@ async function submitForm() {
     "endTime",
   ];
 
-  // If subreddit is blank, use r/all
+  // If subreddit (form1.element[0].value) is blank, use r/all
   if (form1.elements[0].value === "") {
-    parameters[0] = "all";
+    fetchString += "subreddit=all";
   }
 
   // Loop through the form elements and add them to the fetch string
