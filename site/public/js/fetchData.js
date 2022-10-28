@@ -155,7 +155,7 @@ async function submitForm() {
   ];
 
   // If subreddit is blank, use r/all
-  if (form1.elements["subreddit"].value === "") {
+  if (form1.elements[0].value === "") {
     parameters[0] = "all";
   }
 
