@@ -1,11 +1,11 @@
 
 async function getData(fetchString) {
-    console.log(fetchString)
+    // console.log(fetchString)
     let serverAddr = 'https://flask-demo-e3oz5uoi7a-uw.a.run.app/'
     let apiEndpoint = 'data'
     let response = await fetch(serverAddr + apiEndpoint + '?' + fetchString);
     let data = await response.json();
-    console.log(data)
+    // console.log(data)
     return data
 }
 
@@ -103,7 +103,7 @@ function updateLengths(data) {
     lengthsChart.options.interaction.mode = 'nearest'
     lengthsChart.options.interaction.intersect = false
     lengthsChart.update()
-    console.log('length' + lengthsChart.data.datasets[0].data.length)
+    // console.log('length' + lengthsChart.data.datasets[0].data.length)
 }
 
 
