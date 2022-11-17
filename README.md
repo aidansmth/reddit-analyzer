@@ -6,7 +6,7 @@ Returns data on the top day, time, title length, and keywords to use. 📧
 
 ## Tools I Used
 
-### Backend
+### Back-End
 
 [Flask-RESTful](https://flask-restful.readthedocs.io/en/latest/) - Extension of the popular Flask webserver that provides handling of API requests.
 
@@ -16,7 +16,7 @@ Returns data on the top day, time, title length, and keywords to use. 📧
 
 [Docker](https://www.docker.com/) - To create an image for Google Cloud Run
 
-### Front End
+### Front-End
 
 [chart.js](https://www.chartjs.org/) - To create beautiful and dynamic charts.
 
